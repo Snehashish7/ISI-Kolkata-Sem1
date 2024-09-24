@@ -5,8 +5,7 @@
 int main()
 {
 
-    char str[] = "Abc";
-    str[1] = 'c';
-    printf("%s", str);
+    char *str = "Abc";
+    printf("%s", ++str);
     return 0;
 }
