@@ -21,10 +21,13 @@ void read_tree(TREE *T){
     T->nodelist[0].parent = -1;
     for(int i = 0; i < capacity; i++){
         TNODE node;
-        scanf("%d %d %d %d", &node.data, &node.left, &node.right);
+        scanf("%d %d %d", &node.data, &node.left, &node.right);
         T->nodelist[i] = node;
-        T->nodelist[T->nodelist->left].parent = node.data;
-        T->nodelist[T->nodelist->right].parent = node.data;
+        if(T->nodelist[i].left != -1)
+            T->nodelist[T->nodelist[i].left].parent = i;
+            
+        if(T->nodelist[i].right != -1)
+            T->nodelist[T->nodelist[i].right].parent = i;
     }
 }
 
