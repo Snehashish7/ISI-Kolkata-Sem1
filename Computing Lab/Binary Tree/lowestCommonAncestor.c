@@ -58,7 +58,11 @@ void print_tree(TREE *T)
 go left, go right. If both return > 0 then the required nodes are on curr_index's either side, so curr_index
 is the LCA.
 */
-int LCA(TREE *T, int node1_index, int node2_index, int curr_index)
+
+// according to Sir we can use parent field to find LCA. (one method could be to find the parent list of both
+// nodes and find the lowest intersection).
+
+int LCA(TREE *T, int node1_index, int node2_index, int curr_index) // O(N:No of nodes)
 {
 
     if (curr_index == -1)
@@ -87,6 +91,19 @@ int main()
     int node1_index, node2_index;
     printf("Enter the node1 index and node2 index\n");
     scanf("%d %d", &node1_index, &node2_index);
-    printf("%d", LCA(&T, node1_index, node2_index, 0)); // LCA(&T): returns the index of lca.
+    if (node1_index > T.capacity || node2_index > T.capacity)
+        printf("Please recheck the node_values");
+    else
+        printf("%d", LCA(&T, node1_index, node2_index, 0)); // LCA(&T): returns the index of lca.
     return 0;
 }
+/*
+1 1 2
+2 3 4
+3 -1 -1
+4 -1 -1
+5 5 -1
+6 6 -1
+7 7 -1
+8 -1 -1
+*/
