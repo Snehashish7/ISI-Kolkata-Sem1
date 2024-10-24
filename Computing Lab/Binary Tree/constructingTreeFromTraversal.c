@@ -16,13 +16,7 @@ typedef struct
 
 void read_tree(TREE *T)
 {
-    int capacity;
-    scanf("%d", &capacity);
-    T->capacity = capacity;
-    T->num_nodes = 0;
-    T->nodelist = (TNODE *)malloc(capacity * sizeof(TNODE));
-    T->nodelist[0].parent = -1;
-    for (int i = 0; i < capacity; i++)
+    for (int i = 0; i < T->capacity; i++)
     {
         TNODE node;
         scanf("%d %d %d", &node.data, &node.left, &node.right);
@@ -76,17 +70,40 @@ int search(int *arr, int start, int end, int data)
     }
 }
 
-TREE constructTree(int *inorder, int *postorder, int inStrt, int inEnd)
+int constructTree(TREE *T, int *inorder, int *postorder, int *postEnd, int inStrt, int inEnd)
 {
-}
+    if(inStrt > inEnd){
+        return -1;
+    }
+    if(inStrt == inEnd)
+        return inStrt;
+    *postEnd = *postEnd - 1;
+    int curr_rootIndex = search(inorder, inStrt, inEnd, postorder[*postEnd]);    
+    int curr_rootValue = postorder[*postEnd];
+    T->nodelist[curr_rootIndex].data = curr_rootValue;
+    T->nodelist[curr_rootIndex].left =  constructTree(T, inorder, postorder, postEnd, inStrt, curr_rootIndex-1);
+    T->nodelist[curr_rootIndex].right =  constructTree(T, inorder, postorder, postEnd, curr_rootIndex+1, inEnd);
+
+    return curr_rootIndex;
+} 
 
 int main()
 {
 
     TREE T;
     // T = (TREE *)malloc(sizeof(TREE));
+    // printf("Enter the capacity of tree\n");
+    int cap;
+    scanf("%d", &cap);
+    T.capacity = cap;
+    T.num_nodes = 0;
+    T.nodelist = (TNODE *)malloc(cap * sizeof(TNODE));
+    T.nodelist[0].parent = -1;
     read_tree(&T);
     // print_tree(&T);
+    // int capacity;
+    // scanf("%d", &capacity);
+    
 
     int *postord = (int *)malloc(T.capacity * sizeof(int));
     int *inord = (int *)malloc(T.capacity * sizeof(int));
@@ -98,7 +115,15 @@ int main()
     // }
     *curr_index = 0;
     inorder(&T, inord, 0, curr_index);
-    TREE T1 = constructTree(inorder, postorder, 0, 0);
+
+    // T.root = search(postorder, 0, cap-1, postord[cap-1]); //index of root.
+    TREE T1;
+    T1.capacity = cap;
+    T1.num_nodes = 0;
+    T1.nodelist = (TNODE *)malloc(cap * sizeof(TNODE));
+    int root_index = constructTree(&T1, inord, postord, &cap, 0, 0);
+    print_tree(&T1);
+
     return 0;
 }
 
