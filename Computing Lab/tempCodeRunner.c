@@ -1,79 +1,158 @@
 #include <stdio.h>
+#include <stdlib.h>
+#define INIT_HEAP_SIZE 1000
+
+typedef struct list
+{
+    int data;
+    struct list *next;
+} NODE;
+
+typedef struct
+{
+    unsigned int num_allocated, num_used;
+    NODE *array;
+} INT_HEAP;
+
+static void swapUp(INT_HEAP *h, int k)
+{
+    NODE tmp;
+    while (k > 0 && h->array[(k - 1) / 2].data > h->array[k].data)
+    {
+        tmp = h->array[(k - 1) / 2];
+        h->array[(k - 1) / 2] = h->array[k];
+        h->array[k] = tmp;
+        k = (k - 1) / 2;
+    }
+}
+
+static void swapDown(INT_HEAP *h, int k)
+{
+    NODE tmp;
+    while (2 * k + 1 < h->num_used)
+    {
+        int j = 2 * k + 1;
+        if (j + 1 < h->num_used && h->array[j].data > h->array[j + 1].data)
+            j++;
+        if (h->array[k].data <= h->array[j].data)
+            break;
+        tmp = h->array[k];
+        h->array[k] = h->array[j];
+        h->array[j] = tmp;
+        k = j;
+    }
+}
+
+void initHeap(INT_HEAP *h)
+{
+    h->num_allocated = INIT_HEAP_SIZE;
+    h->num_used = 0;
+    h->array = malloc(h->num_allocated * sizeof(NODE));
+    if (!h->array)
+    {
+        perror("initHeap: out of memory");
+        exit(-1);
+    }
+}
+
+void insert(INT_HEAP *h, NODE x)
+{
+    if (h->num_used == h->num_allocated)
+    {
+        h->num_allocated *= 2;
+        h->array = realloc(h->array, h->num_allocated * sizeof(NODE));
+        if (!h->array)
+        {
+            perror("initHeap: out of memory");
+            exit(-1);
+        }
+    }
+    h->array[h->num_used] = x;
+    swapUp(h, h->num_used);
+    h->num_used++;
+}
+
+NODE deleteMin(INT_HEAP *h)
+{
+    NODE min = h->array[0];
+    h->array[0] = h->array[--h->num_used];
+    swapDown(h, 0);
+    return min;
+}
+
+void buildheap(INT_HEAP *h)
+{
+    for (int k = h->num_used / 2 - 1; k >= 0; k--)
+        swapDown(h, k);
+}
+
+void inputKList(NODE **ptr, int k)
+{
+    for (int i = 0; i < k; i++)
+    {
+        int n;
+        scanf("%d", &n);
+        NODE *prev_node = NULL;
+        for (int j = 0; j < n; j++)
+        {
+            int data;
+            scanf("%d", &data);
+            NODE *node = malloc(sizeof(NODE));
+            node->data = data;
+            node->next = NULL;
+            if (!prev_node)
+            {
+                ptr[i] = node;
+            }
+            else
+            {
+                prev_node->next = node;
+            }
+            prev_node = node;
+        }
+    }
+}
 
 int main()
 {
-    // your code goes here
-    int T;
-    scanf("%d", &T);
-    while (T--)
+    int k;
+    scanf("%d", &k);
+    NODE *ptr[k];
+
+    inputKList(ptr, k);
+
+    int *res = malloc(100 * sizeof(int));
+    INT_HEAP h;
+    h.num_allocated = INIT_HEAP_SIZE;
+    h.num_used = 0;
+    h.array = malloc(h.num_allocated * sizeof(NODE));
+
+    for (int i = 0; i < k; i++)
     {
-        int N, a, b;
-        scanf("%d", &N);
-        scanf("%d", &a);
-        scanf("%d", &b);
-        int arr[N];
-        int sum = 0;
-        for (int i = 0; i < N; i++)
+        if (ptr[i])
         {
-            scanf("%d", &arr[i]);
-            sum += arr[i];
+            insert(&h, *ptr[i]);
         }
-        int turn = 0;  // 0: Bob, 1: Alice
-        int winF = -1; // win flag
-        while (1)
-        {
-            if (turn == 0)
-            {
-                int remF = 0;
-                for (int i = 0; i < N; i++)
-                {
-                    if (arr[i] && arr[i] % a == 0)
-                    {
-                        remF = 1; // atleat one element removed
-                        sum -= arr[i];
-                        arr[i] = 0; // vacating the pos
-                    }
-                }
-                if (remF == 0)
-                {
-                    winF = 1;
-                    break;
-                }
-                else if (sum == 0)
-                {
-                    winF = 0;
-                    break;
-                }
-                turn = 1;
-            }
-            else if (turn == 1)
-            {
-                int remF = 0;
-                for (int i = 0; i < N; i++)
-                {
-                    if (arr[i] && arr[i] % b == 0)
-                    {
-                        remF = 1; // atleat one element removed
-                        sum -= arr[i];
-                        arr[i] = 0;
-                    }
-                }
-                if (remF == 0)
-                {
-                    winF = 0;
-                    break;
-                }
-                else if (sum == 0)
-                {
-                    winF = 1;
-                    break;
-                }
-                turn = 0;
-            }
-        }
-        if (winF == 0)
-            printf("BOB\n");
-        else
-            printf("ALICE\n");
     }
+
+    int i = 0;
+    while (h.num_used > 0)
+    {
+        NODE min = deleteMin(&h);
+        if (min.next)
+        {
+            insert(&h, *min.next);
+        }
+        res[i++] = min.data;
+    }
+
+    for (int j = 0; j < i; j++)
+    {
+        printf("%d ", res[j]);
+    }
+    printf("\n");
+
+    free(res);
+    free(h.array);
+    return 0;
 }
