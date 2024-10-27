@@ -12,6 +12,7 @@ typedef struct
     int elements[5];
 } QUEUE;
 
+// Circular-queue implementation.
 QUEUE create_queue()
 {
     QUEUE s;
