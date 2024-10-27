@@ -2,6 +2,7 @@
     "files.associations": {
         "*.ejs": "html",
         "*.ipynb": "python",
-        "cmath": "c"
+        "cmath": "c",
+        "stdio.h": "c"
     }
 }
